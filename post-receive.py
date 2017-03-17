@@ -3,6 +3,13 @@
 
 	Simple python script for push notifications. Notifications ...
 
+	Line for stdin (test example):
+	fc88f2f47129347ee20f73632927e84dae67c4f7 1de59c8239ea271a9cb52e8b6a7b50d3939207b3 refs/heads/master
+	<old-value> SP <new-value> SP <ref-name> LF
+
+	can be tested with test line file:
+	./post-receive.py < test_line
+
 	Author: Hrvoje Novosel<hrvojedotnovosel@gmail.com>
 	Created: 17. Mar 2017
 
@@ -25,7 +32,7 @@ def Log(message):
 	print("Push notification: {}".format(message))
 
 
-def run_command(command, panic=False, nlines=None):
+def run_command(command, panic=False, nlines=1):
 	"""
 		Runs command and returns last output line
 		If panic return value of the command must be 0
@@ -34,9 +41,20 @@ def run_command(command, panic=False, nlines=None):
 	retval = p.stdout.readlines()
 	if p.wait() != 0 and panic:
 		Log('Cannot get extract repository info, exiting ...')
-		return ''
+		sys.extit()
 
-	return retval.pop()
+	if nlines == 1:
+		return retval.pop()
+	else:
+		if nlines == 'max':
+			nln = len(retval)
+		else:
+			nln = min(len(retval), nlines)
+		retstr = ""
+		for i in range(nln):
+			retstr += retval[i]
+
+		return retstr
 
 
 def get_configuration():
@@ -66,6 +84,15 @@ def repo_details(git_path, property):
 		return 'undefined'
 
 
+# TODO: this fnc is not needed!
+def get_diff_files(old_rev, new_rev, ref_name):
+	"""
+		Returns list of the modified files
+	"""
+	diff_files = run_command('git diff --stat ' + old_rev + ' ' + new_rev + ' ' + ref_name, False, 'max')
+	print diff_files
+
+
 def main():
 	"""
 		Perform the stuff
@@ -74,25 +101,29 @@ def main():
 	git_dir = run_command('git rev-parse --git-dir', True).strip()
 	git_project = repo_details(git_dir, 'project')
 
-	print git_project
-
 	conf = get_configuration()
 	if conf is None:
 		Log('Valid configuration missing')
 		return
 
-	# print(conf)
+	msg = ''
 	# check for modified files
+	for ln in sys.stdin:
+		args = ln.split(' ')
+		if len(args) == 3:
+			args[1], args[2]
+			# TODO: multiline commit msgs
+			commit = run_command(' git log -n1 --format="%an<%ae> %s" ' + args[1] + ' ' + args[2])
+			diff   = run_command('git diff --stat {} {} {}'.format(args[0], args[1], args[2]), False, 'max')
 
-	# msg and file diff, see what to do with that
+			# TODO: see if summary of changes will be needed?
+			msg += "Commit:\n{}\nDiff:{}\n\n".format(commit, diff)
+
+	print msg
 
 
 if __name__ == '__main__':
 	"""
 		TODO: utilize debug/prod env
 	"""
-	for ln in sys.stdin:
-		print ln
-
-	# ok, modification will be needed
 	main()
