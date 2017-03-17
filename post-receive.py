@@ -69,6 +69,7 @@ def get_configuration():
 
 	return None
 
+
 def repo_details(git_path, property):
 	"""
 		Reads git description fp and returns basic info on git repository
@@ -84,13 +85,13 @@ def repo_details(git_path, property):
 		return 'undefined'
 
 
-# TODO: this fnc is not needed!
-def get_diff_files(old_rev, new_rev, ref_name):
+def send_message(recipient, title, message, server):
 	"""
-		Returns list of the modified files
+		Sends a message to each recipient from the list
 	"""
-	diff_files = run_command('git diff --stat ' + old_rev + ' ' + new_rev + ' ' + ref_name, False, 'max')
-	print diff_files
+	# print(server)
+	print(title)
+	print(message)
 
 
 def main():
@@ -99,7 +100,7 @@ def main():
 	"""
 	# check for basic git info first
 	git_dir = run_command('git rev-parse --git-dir', True).strip()
-	git_project = repo_details(git_dir, 'project')
+	git_project = 'Project ' + repo_details(git_dir, 'project')
 
 	conf = get_configuration()
 	if conf is None:
@@ -111,15 +112,17 @@ def main():
 	for ln in sys.stdin:
 		args = ln.split(' ')
 		if len(args) == 3:
-			args[1], args[2]
-			# TODO: multiline commit msgs
+			git_project += ' branch: ' + args[2][args[2].rfind('/')+1:]
 			commit = run_command(' git log -n1 --format="%an<%ae> %s" ' + args[1] + ' ' + args[2])
-			diff   = run_command('git diff --stat {} {} {}'.format(args[0], args[1], args[2]), False, 'max')
+			diff   = run_command('git diff --stat {} {} {}'.format(args[1], args[0], args[2]), False, 'max')
 
 			# TODO: see if summary of changes will be needed?
-			msg += "Commit:\n{}\nDiff:{}\n\n".format(commit, diff)
+			msg += "Commit:\n{}\nDiff:\n{}\n\n".format(commit, diff)
 
-	print msg
+	# send a message to all recipients
+	if not conf['server'] is None:
+		for r in conf['recipient_lst']:
+			send_message(r, git_project, msg, conf['server'])
 
 
 if __name__ == '__main__':
