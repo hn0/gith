@@ -91,5 +91,8 @@ if __name__ == '__main__':
 	"""
 		TODO: utilize debug/prod env
 	"""
-	print sys.argv
+	for ln in sys.stdin:
+		print ln
+
+	# ok, modification will be needed
 	main()
