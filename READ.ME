@@ -3,8 +3,17 @@ TITLE
 
 Is a collection of git hooks written  with a goal of having single, central configuration across multiple git repositories.
 
+Scripts
+-------
 
-All hook are written in python ver 2.7 scripting language.
+Git server push summary message notification.
+
+
+Dependencies
+------------
+
+git >2.10
+python >2.8
 
 
 Installation
@@ -36,3 +45,6 @@ Configuration keys:
 	mail: collection of settings driving mail notification system
 		recipient_lst: array of target recipients
 		server: configuration of outgoing mail server
+			host: smtp host to be used
+			user: username for the smtp host
+			pwd:  password for smtp host

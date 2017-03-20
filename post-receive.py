@@ -48,7 +48,7 @@ def main():
 			commit = conf.run_command(' git log -n1 --format="%an<%ae> %s" ' + args[1] + ' ' + args[2])
 			diff   = conf.run_command('git diff --stat {} {} {}'.format(args[1], args[0], args[2]), False, 'max')
 	
-			# TODO: see if summary of changes will be needed?
+			# TODO: if set in config, zip detailes line diff
 			msg += "Commit:\n{}\nDiff:\n{}\n\n".format(commit, diff)
 
 	# send a message to all recipients
