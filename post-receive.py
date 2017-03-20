@@ -19,11 +19,9 @@ import sys
 import os
 import json
 import subprocess
+import conf
 
 DEBUG = True
-# path to config file contaning information on target email addresses, servers, ...
-CONFIG_FILE = './../config.json'
-
 
 def Log(message):
 	"""
@@ -55,19 +53,6 @@ def run_command(command, panic=False, nlines=1):
 			retstr += retval[i]
 
 		return retstr
-
-
-def get_configuration():
-	"""
-		Reads and pases configuration file in JSON format
-	"""
-	if os.path.isfile(CONFIG_FILE):
-		with open(CONFIG_FILE, 	'r') as fp:
-			return json.loads(fp.read())
-	else:
-		Log('Configuration file not present on the system')
-
-	return None
 
 
 def repo_details(git_path, property):
@@ -102,8 +87,8 @@ def main():
 	git_dir = run_command('git rev-parse --git-dir', True).strip()
 	git_project = 'Project ' + repo_details(git_dir, 'project')
 
-	conf = get_configuration()
-	if conf is None:
+	cfg = conf.get_configuration()
+	if cfg is None:
 		Log('Valid configuration missing')
 		return
 
@@ -120,9 +105,9 @@ def main():
 			msg += "Commit:\n{}\nDiff:\n{}\n\n".format(commit, diff)
 
 	# send a message to all recipients
-	if not conf['server'] is None:
-		for r in conf['recipient_lst']:
-			send_message(r, git_project, msg, conf['server'])
+	if not cfg['server'] is None:
+		for r in cfg['recipient_lst']:
+			send_message(r, git_project, msg, cfg['server'])
 
 
 if __name__ == '__main__':

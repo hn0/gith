@@ -1,0 +1,38 @@
+TITLE
+=====
+
+Is a collection of git hooks written  with a goal of having single, central configuration across multiple git repositories.
+
+
+All hook are written in python ver 2.7 scripting language.
+
+
+Installation
+------------
+
+TODO: create lib shared across multiple scripts.
+
+
+Configuration file
+------------------
+
+Configuration file is structured in JSON format. A single configuration file is shared across multiple hook scripts.
+
+Example of configuration:
+
+```JSON
+{
+	"recipient_lst":["Joe Doe<email@example.com"],
+	"server": {
+		"host": "smtp.example.com",
+		"user": "email@example.com",
+		"pwd":  "yourprivatepassword"
+	}
+}
+```
+
+Configuration keys:
+
+	mail: collection of settings driving mail notification system
+		recipient_lst: array of target recipients
+		server: configuration of outgoing mail server
