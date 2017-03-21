@@ -3,7 +3,7 @@
 
 """
 
-DEBUG = True
+DEBUG = False
 # path to config file contaning information on target email addresses, servers, ...
 CONFIG_FILE = './../config.json'
 
@@ -42,7 +42,8 @@ def Log(message):
 	"""
 		Message logging function
 	"""
-	print("Push notification: {}".format(message))
+	if DEBUG:
+		print("Push notification: {}".format(message))
 
 
 def run_command(command, panic=False, nlines=1):

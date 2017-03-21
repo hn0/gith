@@ -1,7 +1,7 @@
 #! /usr/bin/python2.7
 """
 
-	Simple hook for sending server push summary notification message
+	Simple email notification script, sends summary of push on the server side to predefined list of recipients
 
 	Line for stdin (test example):
 	fc88f2f47129347ee20f73632927e84dae67c4f7 1de59c8239ea271a9cb52e8b6a7b50d3939207b3 refs/heads/master
@@ -38,13 +38,14 @@ def send_message(recipient, title, message, server):
 		s.ehlo_or_helo_if_needed()
 		if not s is None:
 			s.login(server['user'], server['pwd'])
-			s.sendmail(server['user'], recipient, msg.as_string())
-			return True
+			if not conf.DEBUG:
+				s.sendmail(server['user'], recipient, msg.as_string())
+				return None
+			else:
+				return "\nSending the message:" + msg.as_string()
+				
 	except Exception as ex:
-		print ex
-		pass
-
-	return False
+		return 'Message has not been sent: {}'.format(str(ex))
 
 
 def main():
@@ -75,7 +76,9 @@ def main():
 	# send a message to all recipients
 	if not cfg['server'] is None:
 		for r in cfg['recipient_lst']:
-			send_message(r, git_project, msg, cfg['server'])
+			res = send_message(r, git_project, msg, cfg['server'])
+			if not res is None:
+				Log(res)
 
 
 if __name__ == '__main__':
