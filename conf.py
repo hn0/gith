@@ -3,7 +3,8 @@
 
 """
 
-DEBUG = False
+# debug flag, will not send a message if value is set to True
+DEBUG = True
 # path to config file contaning information on target email addresses, servers, ...
 CONFIG_FILE = './../config.json'
 
