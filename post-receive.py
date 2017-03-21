@@ -16,14 +16,35 @@
 """
 
 import conf
+import smtplib
+from email.mime.text import MIMEText
 
 def send_message(recipient, title, message, server):
 	"""
 		Sends a message to each recipient from the list
 	"""
 	# print(server)
-	print(title)
-	print(message)
+	# print(title)
+	# print(message)
+
+	try:
+		msg = MIMEText(message)
+		msg['Subject'] = title
+		msg['From']    = server['user']
+		msg['To']      = recipient
+
+		# current support is just for plain smtp server, ssl support in plan
+		s = smtplib.SMTP(server['host'])
+		s.ehlo_or_helo_if_needed()
+		if not s is None:
+			s.login(server['user'], server['pwd'])
+			s.sendmail(server['user'], recipient, msg.as_string())
+			return True
+	except Exception as ex:
+		print ex
+		pass
+
+	return False
 
 
 def main():
